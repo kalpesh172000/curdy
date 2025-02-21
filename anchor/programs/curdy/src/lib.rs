@@ -1,70 +1,97 @@
 #![allow(clippy::result_large_err)]
+#![allow(unexpected_cfgs)]
 
 use anchor_lang::prelude::*;
 
-declare_id!("coUnmi3oBUtwtd9fjeAvSsJssXh5A5xyPbhpewyzRVF");
+declare_id!("G4ZHFNLaXF33RDfhdRNokethirDzgYJfTQYwWp34L4iM");
 
 #[program]
 pub mod curdy {
     use super::*;
 
-  pub fn close(_ctx: Context<CloseCurdy>) -> Result<()> {
-    Ok(())
-  }
+    pub fn create_journal_entry(
+        ctx: Context<CreateJournalEntry>,
+        title: String,
+        message: String,
+    ) -> Result<()> {
+        let journalentry = &mut ctx.accounts.jornalentry;
+        journalentry.owner = *ctx.accounts.owner.key;
+        journalentry.title = title;
+        journalentry.message = message;
+        Ok(())
+    }
 
-  pub fn decrement(ctx: Context<Update>) -> Result<()> {
-    ctx.accounts.curdy.count = ctx.accounts.curdy.count.checked_sub(1).unwrap();
-    Ok(())
-  }
+    pub fn update_jornal_entry(
+        ctx: Context<UpdateJournalEntry>,
+        _title: String,
+        message: String,
+    ) -> Result<()> {
+        let journalentry = &mut ctx.accounts.jornalentry;
+        journalentry.message = message;
+        Ok(())
+    }
 
-  pub fn increment(ctx: Context<Update>) -> Result<()> {
-    ctx.accounts.curdy.count = ctx.accounts.curdy.count.checked_add(1).unwrap();
-    Ok(())
-  }
-
-  pub fn initialize(_ctx: Context<InitializeCurdy>) -> Result<()> {
-    Ok(())
-  }
-
-  pub fn set(ctx: Context<Update>, value: u8) -> Result<()> {
-    ctx.accounts.curdy.count = value.clone();
-    Ok(())
-  }
-}
-
-#[derive(Accounts)]
-pub struct InitializeCurdy<'info> {
-  #[account(mut)]
-  pub payer: Signer<'info>,
-
-  #[account(
-  init,
-  space = 8 + Curdy::INIT_SPACE,
-  payer = payer
-  )]
-  pub curdy: Account<'info, Curdy>,
-  pub system_program: Program<'info, System>,
-}
-#[derive(Accounts)]
-pub struct CloseCurdy<'info> {
-  #[account(mut)]
-  pub payer: Signer<'info>,
-
-  #[account(
-  mut,
-  close = payer, // close account and return lamports to payer
-  )]
-  pub curdy: Account<'info, Curdy>,
-}
-
-#[derive(Accounts)]
-pub struct Update<'info> {
-  #[account(mut)]
-  pub curdy: Account<'info, Curdy>,
+    pub fn delete_journal_entry(_ctx: Context<DeleteJournalEntry>, _title: String) -> Result<()> {
+        Ok(())
+    }
 }
 
 #[account]
 #[derive(InitSpace)]
-pub struct Curdy {
-  count: u8,
+pub struct JournalEntry {
+    pub owner: Pubkey,
+    #[max_len(64)]
+    pub title: String,
+    #[max_len(256)]
+    pub message: String,
+}
+
+#[derive(Accounts)]
+#[instruction(title: String)]
+pub struct CreateJournalEntry<'info> {
+    #[account(mut)]
+    pub owner: Signer<'info>,
+    #[account(
+        init,
+        payer = owner,
+        space = 8 + JournalEntry::INIT_SPACE,
+        seeds = [title.as_bytes(), owner.key().as_ref()],
+        bump
+    )]
+    pub jornalentry: Account<'info, JournalEntry>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+#[instruction(title: String)]
+pub struct UpdateJournalEntry<'info> {
+    #[account(mut)]
+    pub owner: Signer<'info>,
+    #[account(
+        mut,
+        seeds = [title.as_bytes(), owner.key().as_ref()],
+        bump,
+        realloc = 8 + JournalEntry::INIT_SPACE,
+        realloc::zero = true,
+        realloc::payer = owner
+
+    )]
+    pub jornalentry: Account<'info, JournalEntry>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+#[instruction(title: String)]
+pub struct DeleteJournalEntry<'info> {
+    #[account(mut)]
+    pub owner: Signer<'info>,
+
+    #[account(
+        mut,
+        seeds = [title.as_bytes(), owner.key().as_ref()],
+        bump,
+        close = owner,
+    )]
+    pub jornalentry: Account<'info, JournalEntry>,
+    pub system_program: Program<'info, System>,
 }

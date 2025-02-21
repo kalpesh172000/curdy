@@ -1,7 +1,11 @@
 import * as anchor from '@coral-xyz/anchor'
 import {Program} from '@coral-xyz/anchor'
-import {Keypair} from '@solana/web3.js'
+import {Keypair, PublicKey} from '@solana/web3.js'
 import {Curdy} from '../target/types/curdy'
+
+import idl from '../target/idl/voter.json'
+
+const curdyProgramAddress = new PublicKey('GpCjJo1DqXs4qPkiCW7DaX8ggxVKTvczDLZ7Rk3uCRbu')
 
 describe('curdy', () => {
   // Configure the client to use the local cluster.

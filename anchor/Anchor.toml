@@ -6,7 +6,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-curdy = "coUnmi3oBUtwtd9fjeAvSsJssXh5A5xyPbhpewyzRVF"
+curdy = "G4ZHFNLaXF33RDfhdRNokethirDzgYJfTQYwWp34L4iM"
 
 [registry]
 url = "https://api.apr.dev"

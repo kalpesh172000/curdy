@@ -21,7 +21,7 @@ export function getCurdyProgramId(cluster: Cluster) {
     case 'devnet':
     case 'testnet':
       // This is the program ID for the Curdy program on devnet and testnet.
-      return new PublicKey('coUnmi3oBUtwtd9fjeAvSsJssXh5A5xyPbhpewyzRVF')
+      return new PublicKey('G4ZHFNLaXF33RDfhdRNokethirDzgYJfTQYwWp34L4iM')
     case 'mainnet-beta':
     default:
       return CURDY_PROGRAM_ID
